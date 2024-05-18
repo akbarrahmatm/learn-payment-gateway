@@ -9,10 +9,30 @@ const createPayment = async (req, res, next) => {
     const totalAmount = 200000;
 
     const customerDetail = {
-      first_name: "Akbar",
-      last_name: "Rahmat Mulyatama",
-      email: "akbarrahmatmulyatama@gmail.com",
-      phone: "087883812700",
+      first_name: "John",
+      last_name: "Watson",
+      email: "test@example.com",
+      phone: "+628123456",
+      billing_address: {
+        first_name: "John",
+        last_name: "Watson",
+        email: "test@example.com",
+        phone: "081 2233 44-55",
+        address: "Sudirman",
+        city: "Jakarta",
+        postal_code: "12190",
+        country_code: "IDN",
+      },
+      shipping_address: {
+        first_name: "John",
+        last_name: "Watson",
+        email: "test@example.com",
+        phone: "0 8128-75 7-9338",
+        address: "Sudirman",
+        city: "Jakarta",
+        postal_code: "12190",
+        country_code: "IDN",
+      },
     };
 
     let snap = new midtransClient.Snap({
@@ -28,7 +48,7 @@ const createPayment = async (req, res, next) => {
       credit_card: {
         secure: true,
       },
-      customers_details: customerDetail,
+      customer_details: customerDetail,
     };
 
     const transaction = await snap.createTransaction(parameter);
@@ -52,8 +72,6 @@ const createPayment = async (req, res, next) => {
 const getTransactionDetail = async (req, res, next) => {
   try {
     const { orderId } = req.params;
-
-    console.log(orderId);
 
     if (!orderId) {
       return next(new ApiError("orderId is required", 400));
