@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
   req.encodedMidtransServerKey = Buffer.from(
-    process.env.MIDTRANS_SERVER_KEY
+    process.env.MIDTRANS_SERVER_KEY + ":"
   ).toString("base64");
   next();
 });

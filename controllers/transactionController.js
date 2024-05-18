@@ -101,7 +101,83 @@ const getTransactionDetail = async (req, res, next) => {
   }
 };
 
+const createPaymentVA = async (req, res, next) => {
+  try {
+    const { bank } = req.body;
+    const orderId = uuid.v4();
+    const totalAmount = 200000;
+
+    const allowedBanks = ["bca", "bni", "bri", "mandiri", "permata", "cimb"];
+
+    if (!allowedBanks.includes(bank)) {
+      return next(
+        new ApiError(
+          "Bank transfer should be 'bca, bni, bri, mandiri, permata, cimb'",
+          400
+        )
+      );
+    }
+
+    let coreApi = new midtransClient.CoreApi({
+      isProduction: false,
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY,
+    });
+
+    let requestBody;
+
+    if (bank === "bca" || bank === "bni" || bank === "bri" || bank === "cimb") {
+      requestBody = {
+        payment_type: "bank_transfer",
+        transaction_details: {
+          order_id: orderId,
+          gross_amount: totalAmount,
+        },
+        bank_transfer: {
+          bank: bank,
+        },
+      };
+    }
+
+    if (bank === "mandiri") {
+      requestBody = {
+        payment_type: "echannel",
+        transaction_details: {
+          order_id: orderId,
+          gross_amount: totalAmount,
+        },
+        echannel: {
+          bill_info1: "Payment:",
+          bill_info2: "Online purchase",
+        },
+      };
+    }
+
+    if (bank === "permata") {
+      requestBody = {
+        payment_type: bank,
+        transaction_details: {
+          order_id: orderId,
+          gross_amount: totalAmount,
+        },
+      };
+    }
+
+    const response = await coreApi.charge(requestBody);
+
+    res.status(201).json({
+      status: "Success",
+      message: "Bank VA is successfully created",
+      requestAt: req.requestTime,
+      data: response,
+    });
+  } catch (err) {
+    return next(new ApiError(err.message, 400));
+  }
+};
+
 module.exports = {
   createPayment,
   getTransactionDetail,
+  createPaymentVA,
 };
