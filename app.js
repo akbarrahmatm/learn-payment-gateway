@@ -3,6 +3,7 @@ const morgan = require("morgan");
 
 const errorController = require("./controllers/errorController");
 const cors = require("cors");
+const router = require("./routes");
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use((req, res, next) => {
   req.requestTime = new Date();
   next();
 });
+
+app.use(router);
 
 app.use(errorController.onLost);
 app.use(errorController.onError);
