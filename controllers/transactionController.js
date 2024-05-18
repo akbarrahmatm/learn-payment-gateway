@@ -176,8 +176,55 @@ const createPaymentVA = async (req, res, next) => {
   }
 };
 
+const createPaymentCard = async (req, res, next) => {
+  try {
+    const orderId = uuid.v4();
+
+    let coreApi = new midtransClient.CoreApi({
+      isProduction: false,
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY,
+    });
+
+    let tokenParameter = {
+      card_number: "4911 1111 1111 1113",
+      card_exp_month: "12",
+      card_exp_year: "2025",
+      card_cvv: "123",
+      client_key: process.env.MIDTRANS_CLIENT_KEY,
+    };
+
+    const tokenResponse = await coreApi.cardToken(tokenParameter);
+    const tokenId = tokenResponse.token_id;
+
+    let cardParams = {
+      payment_type: "credit_card",
+      transaction_details: {
+        gross_amount: 12145,
+        order_id: orderId,
+      },
+      credit_card: {
+        token_id: tokenId, // change with your card token
+        authentication: true,
+      },
+    };
+
+    const cardResponse = await coreApi.charge(cardParams);
+
+    res.status(201).json({
+      status: "Success",
+      message: "Credit Card Payment is successfully created",
+      requestAt: req.requestTime,
+      data: cardResponse,
+    });
+  } catch (err) {
+    return next(new ApiError(err.message, 400));
+  }
+};
+
 module.exports = {
   createPayment,
   getTransactionDetail,
   createPaymentVA,
+  createPaymentCard,
 };

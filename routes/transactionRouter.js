@@ -5,6 +5,7 @@ const transaction = require("../controllers/transactionController");
 // API
 router.post("/create", transaction.createPayment);
 router.post("/create/va", transaction.createPaymentVA);
+router.post("/create/card", transaction.createPaymentCard);
 router.get("/status/:orderId", transaction.getTransactionDetail);
 
 module.exports = router;
