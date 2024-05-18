@@ -82,8 +82,7 @@ const getTransactionDetail = async (req, res, next) => {
       url: `https://api.sandbox.midtrans.com/v2/${orderId}/status`,
       headers: {
         accept: "application/json",
-        authorization:
-          "Basic U0ItTWlkLXNlcnZlci15X3ZoTVN6Z3J0SW9rckNoRmxaRzRySlA6",
+        authorization: `Basic ${req.encodedMidtransServerKey}`,
       },
     };
 
