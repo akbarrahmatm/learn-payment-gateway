@@ -3,6 +3,65 @@ const uuid = require("uuid");
 const midtransClient = require("midtrans-client");
 const axios = require("axios");
 
+const createPaymentGopay = async (req, res, next) => {
+  try {
+    const orderId = uuid.v4();
+    const totalAmount = 200000;
+
+    let coreApi = new midtransClient.CoreApi({
+      isProduction: false,
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY,
+    });
+
+    const customerDetail = {
+      first_name: "John",
+      last_name: "Watson",
+      email: "test@example.com",
+      phone: "+628123456",
+      billing_address: {
+        first_name: "John",
+        last_name: "Watson",
+        email: "test@example.com",
+        phone: "081 2233 44-55",
+        address: "Sudirman",
+        city: "Jakarta",
+        postal_code: "12190",
+        country_code: "IDN",
+      },
+      shipping_address: {
+        first_name: "John",
+        last_name: "Watson",
+        email: "test@example.com",
+        phone: "0 8128-75 7-9338",
+        address: "Sudirman",
+        city: "Jakarta",
+        postal_code: "12190",
+        country_code: "IDN",
+      },
+    };
+
+    const parameter = {
+      payment_type: "gopay",
+      transaction_details: {
+        order_id: orderId,
+        gross_amount: totalAmount,
+        customer_details: customerDetail,
+      },
+    };
+
+    const transaction = await coreApi.charge(parameter);
+
+    res.status(201).json({
+      status: "Success",
+      message: "Gopay payment successfully created",
+      data: transaction,
+    });
+  } catch (err) {
+    return next(new ApiError(err.message, 400));
+  }
+};
+
 const createPayment = async (req, res, next) => {
   try {
     const orderId = uuid.v4();
@@ -227,4 +286,5 @@ module.exports = {
   getTransactionDetail,
   createPaymentVA,
   createPaymentCard,
+  createPaymentGopay,
 };
